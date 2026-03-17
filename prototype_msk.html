@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>근골격계 증상 문진 · 웰니스 프로토타입</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --card: #ffffff;
+        --text: #1d2430;
+        --muted: #637081;
+        --accent: #3b6ff5;
+        --accent-weak: #eef3ff;
+        --border: #e3e7ee;
+        --shadow: 0 10px 26px rgba(18, 26, 47, 0.08);
+        --success: #2f855a;
+        --warning: #d38c1c;
+        --danger: #d64545;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      header {
+        background: linear-gradient(120deg, #3b6ff5, #5b9dff);
+        color: #fff;
+        padding: 36px 20px 28px;
+      }
+
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      header p {
+        margin: 0;
+        max-width: 760px;
+        opacity: 0.9;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 20px 70px;
+      }
+
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .step {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      .step:hover {
+        transform: translateY(-2px);
+        border-color: #c7d2fe;
+      }
+
+      .step.active {
+        border-color: var(--accent);
+      }
+
+      .step small {
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+
+      .step h3 {
+        margin: 6px 0 0;
+        font-size: 16px;
+      }
+
+      .progress {
+        height: 10px;
+        background: #e8ebf0;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .progress > div {
+        height: 100%;
+        width: 33.3%;
+        background: linear-gradient(90deg, #3b6ff5, #77a5ff);
+        transition: width 0.3s ease;
+      }
+
+      .page {
+        display: none;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .pill {
+        display: inline-block;
+        background: var(--accent-weak);
+        color: var(--accent);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .checkbox-group,
+      .radio-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .checkbox-row,
+      .radio-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        background: var(--accent);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      button.ghost {
+        background: transparent;
+        border: 1px dashed var(--border);
+        color: var(--muted);
+      }
+
+      .page-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .page-nav .left,
+      .page-nav .right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .body-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+
+      .body-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      .body-card header {
+        padding: 0;
+        background: none;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .body-card header h4 {
+        margin: 0;
+        font-size: 15px;
+      }
+
+      .body-card .details {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--border);
+      }
+
+      .body-card.active .details {
+        display: grid;
+        gap: 10px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eef2ff;
+        color: #3b5bcc;
+      }
+
+      .result-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #f9fbff;
+      }
+
+      .level-tag {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .level-low {
+        background: #e7f6ee;
+        color: var(--success);
+      }
+
+      .level-mid {
+        background: #fff3db;
+        color: var(--warning);
+      }
+
+      .level-high {
+        background: #fde7e7;
+        color: var(--danger);
+      }
+
+      .list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>근골격계 증상 문진 · 웰니스 안내</h1>
+      <p>
+        [별지 2] 근골격계질환 증상조사표를 참고해 사용자가 직접 문진할 수 있도록 구성한 프로토타입입니다.
+        의학적 판단보다는 개선과 예방을 돕는 웰니스 안내를 제공합니다.
+      </p>
+    </header>
+    <main>
+      <section class="stepper" id="stepper">
+        <div class="step active" data-step="1" role="button" tabindex="0">
+          <small>Step 1</small>
+          <h3>검사 소개</h3>
+        </div>
+        <div class="step" data-step="2" role="button" tabindex="0">
+          <small>Step 2</small>
+          <h3>문진표 작성</h3>
+        </div>
+        <div class="step" data-step="3" role="button" tabindex="0">
+          <small>Step 3</small>
+          <h3>결과 · 증상 안내</h3>
+        </div>
+      </section>
+
+      <div class="progress">
+        <div id="progress-bar"></div>
+      </div>
+
+      <section class="card page active" id="step-1" data-step="1">
+        <h2>검사 소개</h2>
+        <p class="pill">근골격계 증상 Self-check</p>
+        <p>
+          이 문진은 근골격계 부담작업 종사자가 자신의 증상을 스스로 점검하고,
+          생활·작업 개선 방향을 찾기 위한 체크리스트입니다.
+        </p>
+        <div class="grid">
+          <div>
+            <strong>문진 흐름</strong>
+            <ul class="list">
+              <li>기본 정보 및 생활습관/질환 이력</li>
+              <li>작업 관련 증상(부위·기간·강도·빈도) 확인</li>
+              <li>증상 요약 및 개선/예방 가이드 제공</li>
+            </ul>
+          </div>
+          <div>
+            <strong>주의</strong>
+            <ul class="list">
+              <li>의학적 진단이 아닌 웰니스 안내입니다.</li>
+              <li>증상이 심하거나 지속되면 의료진 상담이 필요합니다.</li>
+              <li>결과는 과대/과소평가하지 않도록 작성합니다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="ghost" disabled>처음으로</button>
+          </div>
+          <div class="right">
+            <button type="button" id="next-from-1">다음</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card page" id="step-2" data-step="2">
+        <h2>문진표 작성</h2>
+        <p>필요한 항목만 입력하셔도 결과가 도출됩니다. 모르는 항목은 공란으로 두세요.</p>
+
+        <form id="msk-form">
+          <div class="grid">
+            <div>
+              <label>성명</label>
+              <input type="text" name="name" placeholder="홍길동" />
+            </div>
+            <div>
+              <label>연령</label>
+              <input type="number" name="age" min="18" max="100" placeholder="예: 35" />
+            </div>
+            <div>
+              <label>성별</label>
+              <div class="radio-group">
+                <label class="radio-row"><input type="radio" name="gender" value="male" checked /> 남</label>
+                <label class="radio-row"><input type="radio" name="gender" value="female" /> 여</label>
+              </div>
+            </div>
+            <div>
+              <label>현 직장 경력</label>
+              <input type="text" name="tenure" placeholder="예: 3년 2개월" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>현재 작업 부서/라인</label>
+              <input type="text" name="department" placeholder="예: 조립 2라인" />
+            </div>
+            <div>
+              <label>수행 작업</label>
+              <input type="text" name="task" placeholder="예: 포장, 조립 등" />
+            </div>
+            <div>
+              <label>1일 근무시간</label>
+              <input type="number" name="workHours" min="1" max="16" placeholder="시간" />
+            </div>
+            <div>
+              <label>휴식시간(식사 제외)</label>
+              <input type="text" name="breaks" placeholder="예: 10분씩 2회" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>규칙적 여가/취미 활동</label>
+              <select name="leisure">
+                <option value="none">해당사항 없음</option>
+                <option value="computer">게임/컴퓨터 활동</option>
+                <option value="music">악기 연주</option>
+                <option value="craft">뜨개질/붓글씨</option>
+                <option value="sports">스포츠 활동</option>
+              </select>
+              <div class="hint">30분 이상, 주 2~3회 이상 기준</div>
+            </div>
+            <div>
+              <label>하루 평균 가사노동 시간</label>
+              <select name="housework">
+                <option value="none">거의 하지 않음</option>
+                <option value="under1">1시간 미만</option>
+                <option value="under2">1~2시간 미만</option>
+                <option value="under3">2~3시간 미만</option>
+                <option value="over3">3시간 이상</option>
+              </select>
+            </div>
+            <div>
+              <label>질병 진단 이력</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="disease" value="rheumatoid" /> 류머티스 관절염</label>
+                <label class="checkbox-row"><input type="checkbox" name="disease" value="diabetes" /> 당뇨병</label>
+                <label class="checkbox-row"><input type="checkbox" name="disease" value="lupus" /> 루프스</label>
+                <label class="checkbox-row"><input type="checkbox" name="disease" value="gout" /> 통풍</label>
+                <label class="checkbox-row"><input type="checkbox" name="disease" value="alcohol" /> 알코올 중독</label>
+              </div>
+              <div class="hint">진단 이력이 없으면 체크하지 않습니다.</div>
+            </div>
+            <div>
+              <label>과거 사고/운동 중 부상</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="hand" /> 손/손가락/손목</label>
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="arm" /> 팔/팔꿈치</label>
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="shoulder" /> 어깨</label>
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="neck" /> 목</label>
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="back" /> 허리</label>
+                <label class="checkbox-row"><input type="checkbox" name="injury" value="leg" /> 다리/발</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>현재 작업의 육체적 부담</label>
+              <select name="load">
+                <option value="0">전혀 힘들지 않음</option>
+                <option value="1">견딜만 함</option>
+                <option value="2">약간 힘듦</option>
+                <option value="3">힘듦</option>
+                <option value="4">매우 힘듦</option>
+              </select>
+            </div>
+            <div>
+              <label>지난 1년 동안 작업 관련 통증/불편감이 있었나요?</label>
+              <div class="radio-group">
+                <label class="radio-row"><input type="radio" name="symptomYear" value="no" checked /> 아니오</label>
+                <label class="radio-row"><input type="radio" name="symptomYear" value="yes" /> 예</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <h3>증상 부위별 상세 (증상이 있는 부위만 체크)</h3>
+          <div class="body-grid" id="body-grid"></div>
+
+          <div class="section-divider"></div>
+
+          <div class="page-nav">
+            <div class="left">
+              <button type="button" class="secondary" id="prev-from-2">이전</button>
+              <button type="button" class="ghost" id="to-first-from-2">처음으로</button>
+            </div>
+            <div class="right">
+              <button type="button" id="next-from-2">다음</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="card page" id="step-3" data-step="3">
+        <h2>결과 · 증상 안내</h2>
+        <div class="result-banner">
+          <div>
+            <div class="pill">웰니스 상태 요약</div>
+            <h3 id="level-text" style="margin: 8px 0 0;">-</h3>
+          </div>
+          <div id="level-tag" class="level-tag level-low">-</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <strong>요약</strong>
+            <p id="summary-text">문진 결과에 따라 증상 요약이 표시됩니다.</p>
+          </div>
+          <div>
+            <strong>증상 부위 요약</strong>
+            <ul class="list" id="body-summary">
+              <li>입력값 기반으로 표시됩니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <div>
+            <strong>개선 제안</strong>
+            <ul class="list" id="care-guidance"></ul>
+          </div>
+          <div>
+            <strong>작업/일상 팁</strong>
+            <ul class="list" id="work-guidance"></ul>
+          </div>
+          <div>
+            <strong>의료 상담 권고</strong>
+            <ul class="list" id="medical-guidance"></ul>
+          </div>
+        </div>
+
+        <p class="hint" style="margin-top: 16px;">
+          본 안내는 웰니스 목적으로 제공되며, 통증이 심하거나 지속되면 전문가 상담이 필요합니다.
+        </p>
+
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="secondary" id="prev-from-3">이전</button>
+          </div>
+          <div class="right">
+            <button type="button" class="ghost" id="to-first-from-3">처음으로</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const bodyParts = [
+        { id: "neck", label: "목" },
+        { id: "shoulder", label: "어깨" },
+        { id: "arm", label: "팔/팔꿈치" },
+        { id: "hand", label: "손/손목/손가락" },
+        { id: "back", label: "허리" },
+        { id: "leg", label: "다리/발" },
+      ];
+
+      const durationOptions = [
+        { value: 0, label: "1일 미만" },
+        { value: 1, label: "1일~1주 미만" },
+        { value: 2, label: "1주~1달 미만" },
+        { value: 3, label: "1달~6개월 미만" },
+        { value: 4, label: "6개월 이상" },
+      ];
+
+      const severityOptions = [
+        { value: 0, label: "약한 통증" },
+        { value: 1, label: "중간 통증" },
+        { value: 2, label: "심한 통증" },
+        { value: 3, label: "매우 심한 통증" },
+      ];
+
+      const frequencyOptions = [
+        { value: 0, label: "6개월에 1번" },
+        { value: 1, label: "2~3달에 1번" },
+        { value: 2, label: "1달에 1번" },
+        { value: 3, label: "1주일에 1번" },
+        { value: 4, label: "매일" },
+      ];
+
+      const form = document.getElementById("msk-form");
+      const stepper = document.getElementById("stepper");
+      const progressBar = document.getElementById("progress-bar");
+      const pages = Array.from(document.querySelectorAll(".page"));
+      const bodyGrid = document.getElementById("body-grid");
+
+      const levelText = document.getElementById("level-text");
+      const levelTag = document.getElementById("level-tag");
+      const summaryText = document.getElementById("summary-text");
+      const bodySummary = document.getElementById("body-summary");
+      const careGuidance = document.getElementById("care-guidance");
+      const workGuidance = document.getElementById("work-guidance");
+      const medicalGuidance = document.getElementById("medical-guidance");
+
+      let currentStep = 1;
+
+      function setStep(step) {
+        currentStep = step;
+        pages.forEach((page) => page.classList.toggle("active", Number(page.dataset.step) === step));
+        document.querySelectorAll(".step").forEach((item) => {
+          item.classList.toggle("active", Number(item.dataset.step) === step);
+        });
+        progressBar.style.width = `${step * 33.3}%`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function createBodyCard(part) {
+        const card = document.createElement("div");
+        card.className = "body-card";
+        card.dataset.part = part.id;
+
+        card.innerHTML = `
+          <header>
+            <h4>${part.label}</h4>
+            <label class="checkbox-row">
+              <input type="checkbox" name="pain-${part.id}" />
+              증상 있음
+            </label>
+          </header>
+          <div class="details">
+            <div>
+              <label>통증 위치</label>
+              <select name="side-${part.id}">
+                <option value="">선택 안 함</option>
+                <option value="right">오른쪽</option>
+                <option value="left">왼쪽</option>
+                <option value="both">양쪽</option>
+              </select>
+            </div>
+            <div>
+              <label>통증 지속 기간</label>
+              <select name="duration-${part.id}">
+                ${durationOptions.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label>통증 강도</label>
+              <select name="severity-${part.id}">
+                ${severityOptions.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label>통증 빈도</label>
+              <select name="frequency-${part.id}">
+                ${frequencyOptions.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label>지난 1주일 내 증상</label>
+              <select name="recent-${part.id}">
+                <option value="no">아니오</option>
+                <option value="yes">예</option>
+              </select>
+            </div>
+            <div>
+              <label>통증으로 인한 조치</label>
+              <select name="action-${part.id}">
+                <option value="none">해당사항 없음</option>
+                <option value="clinic">병원/한의원 치료</option>
+                <option value="pharmacy">약국치료</option>
+                <option value="leave">병가/산재</option>
+                <option value="change">작업 전환</option>
+              </select>
+            </div>
+          </div>
+        `;
+
+        const checkbox = card.querySelector(`input[name="pain-${part.id}"]`);
+        checkbox.addEventListener("change", () => {
+          card.classList.toggle("active", checkbox.checked);
+        });
+        return card;
+      }
+
+      function buildBodyCards() {
+        bodyGrid.innerHTML = "";
+        bodyParts.forEach((part) => {
+          bodyGrid.appendChild(createBodyCard(part));
+        });
+      }
+
+      function getValue(name) {
+        return form.elements[name]?.value ?? "";
+      }
+
+      function isChecked(name) {
+        return form.elements[name]?.checked ?? false;
+      }
+
+      function buildList(element, items) {
+        element.innerHTML = "";
+        if (!items.length) {
+          const li = document.createElement("li");
+          li.textContent = "특이 사항이 없습니다.";
+          element.appendChild(li);
+          return;
+        }
+        items.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          element.appendChild(li);
+        });
+      }
+
+      function computeScore() {
+        let score = 0;
+        const summaries = [];
+
+        bodyParts.forEach((part) => {
+          if (!isChecked(`pain-${part.id}`)) return;
+          const duration = Number(getValue(`duration-${part.id}`));
+          const severity = Number(getValue(`severity-${part.id}`));
+          const frequency = Number(getValue(`frequency-${part.id}`));
+          const recent = getValue(`recent-${part.id}`) === "yes" ? 2 : 0;
+          const action = getValue(`action-${part.id}`);
+
+          let actionScore = 0;
+          if (action === "clinic") actionScore = 2;
+          if (action === "pharmacy") actionScore = 1;
+          if (action === "leave") actionScore = 3;
+          if (action === "change") actionScore = 3;
+
+          const partScore = duration + severity + frequency + recent + actionScore;
+          score += partScore;
+
+          summaries.push(`${part.label} (${partScore}점)`);
+        });
+
+        const load = Number(getValue("load"));
+        score += load;
+
+        return { score, summaries };
+      }
+
+      function evaluateLevel(score, hasSymptoms) {
+        if (!hasSymptoms && score <= 1) return "관심";
+        if (score <= 8) return "주의";
+        if (score <= 14) return "관리";
+        return "집중관리";
+      }
+
+      function setLevelTag(level) {
+        levelTag.className = "level-tag";
+        if (level === "집중관리") levelTag.classList.add("level-high");
+        else if (level === "관리") levelTag.classList.add("level-mid");
+        else levelTag.classList.add("level-low");
+        levelTag.textContent = level;
+      }
+
+      function runAnalysis() {
+        const hasSymptoms = bodyParts.some((part) => isChecked(`pain-${part.id}`));
+        const { score, summaries } = computeScore();
+        const level = evaluateLevel(score, hasSymptoms);
+
+        levelText.textContent = level;
+        setLevelTag(level);
+
+        summaryText.textContent =
+          hasSymptoms
+            ? `총 점수 ${score}점 기준으로 '${level}' 수준입니다. 증상 부위와 빈도를 줄이는 개선이 필요합니다.`
+            : "작업 관련 증상이 보고되지 않았습니다. 현재 상태를 유지하며 예방 중심으로 관리하세요.";
+
+        buildList(bodySummary, summaries.length ? summaries : ["증상 보고 없음"]);
+
+        const care = [
+          "작업 전후 스트레칭 및 가벼운 근력운동",
+          "반복 동작 시 미세 휴식(마이크로 브레이크) 확보",
+          "통증 부위는 무리한 사용을 줄이고 회복 시간 확보",
+          "작업 자세 점검 및 높이/각도 조정",
+        ];
+        if (level === "집중관리") {
+          care.unshift("통증이 지속된다면 전문 상담 및 정확한 원인 확인 권장");
+        }
+        buildList(careGuidance, care);
+
+        const workTips = [
+          "장시간 동일 자세는 30~60분마다 자세 변경",
+          "무거운 물체는 분산해 들거나 보조도구 사용",
+          "한쪽 손만 반복 사용 시 교대 작업 고려",
+          "작업 강도가 높은 날에는 회복 시간을 충분히 확보",
+        ];
+        buildList(workGuidance, workTips);
+
+        const medical = [];
+        if (level === "집중관리" || level === "관리") {
+          medical.push("통증이 1달 이상 지속되거나 강도가 심하면 상담 권장");
+          medical.push("신경 증상(저림, 감각 저하)이 동반되면 빠른 확인 권장");
+        } else {
+          medical.push("증상이 악화되면 전문가 상담을 고려하세요.");
+        }
+        buildList(medicalGuidance, medical);
+      }
+
+      document.getElementById("next-from-1").addEventListener("click", () => setStep(2));
+      document.getElementById("prev-from-2").addEventListener("click", () => setStep(1));
+      document.getElementById("to-first-from-2").addEventListener("click", () => setStep(1));
+      document.getElementById("next-from-2").addEventListener("click", () => {
+        runAnalysis();
+        setStep(3);
+      });
+      document.getElementById("prev-from-3").addEventListener("click", () => setStep(2));
+      document.getElementById("to-first-from-3").addEventListener("click", () => setStep(1));
+
+      stepper.addEventListener("click", (event) => {
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        const step = Number(stepEl.dataset.step);
+        if (step === 3) runAnalysis();
+        setStep(step);
+      });
+
+      stepper.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        event.preventDefault();
+        const step = Number(stepEl.dataset.step);
+        if (step === 3) runAnalysis();
+        setStep(step);
+      });
+
+      buildBodyCards();
+      setStep(1);
+    </script>
+  </body>
+</html>
