@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>뇌심발병위험도 평가 · 사후관리 프로토타입</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8fa;
+        --card: #ffffff;
+        --text: #1b1f24;
+        --muted: #637081;
+        --accent: #2d6cdf;
+        --accent-weak: #e8f0ff;
+        --border: #e4e7eb;
+        --danger: #d64545;
+        --warning: #d38c1c;
+        --success: #2f855a;
+        --shadow: 0 8px 24px rgba(23, 32, 56, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      header {
+        background: linear-gradient(120deg, #2d6cdf, #4895ef);
+        color: white;
+        padding: 36px 20px 28px;
+      }
+
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      header p {
+        margin: 0;
+        max-width: 720px;
+        opacity: 0.9;
+      }
+
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 20px 60px;
+      }
+
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .step {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .step:hover {
+        transform: translateY(-2px);
+        border-color: #c7d2fe;
+      }
+
+      .step.active {
+        border-color: var(--accent);
+        box-shadow: 0 10px 24px rgba(45, 108, 223, 0.18);
+      }
+
+      .step small {
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+
+      .step h3 {
+        margin: 6px 0 0;
+        font-size: 16px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+      }
+
+      .page {
+        display: none;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+      }
+
+      .card p {
+        margin: 8px 0;
+        color: var(--muted);
+      }
+
+      .pill {
+        display: inline-block;
+        background: var(--accent-weak);
+        color: var(--accent);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .checkbox-group,
+      .radio-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .checkbox-row,
+      .radio-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+      }
+
+      button {
+        border: none;
+        background: var(--accent);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      button.ghost {
+        background: transparent;
+        border: 1px dashed var(--border);
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .page-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .page-nav .left,
+      .page-nav .right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .progress {
+        height: 10px;
+        background: #e8ebf0;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .progress > div {
+        height: 100%;
+        background: linear-gradient(90deg, #2d6cdf, #5a9bff);
+        width: 25%;
+        transition: width 0.3s ease;
+      }
+
+      .result-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #fafbff;
+        margin-bottom: 16px;
+      }
+
+      .risk-tag {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .risk-low {
+        background: #e7f6ee;
+        color: var(--success);
+      }
+
+      .risk-mid {
+        background: #fff3db;
+        color: var(--warning);
+      }
+
+      .risk-high {
+        background: #fde7e7;
+        color: var(--danger);
+      }
+
+      .list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .analysis-item {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+      }
+
+      .analysis-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eef2ff;
+        color: #3b5bcc;
+      }
+
+      .footer-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>뇌심발병위험도 평가 · 사후관리</h1>
+      <p>
+        KOSHA CODE H-11-2004(직장에서의 뇌·심혈관질환 예방을 위한 발병위험도평가 및 사후관리지침)를 기반으로,
+        개인 문진표 작성 → 분석 → 결과 도출(위험도 + 사후관리 지침)까지 한 번에 확인하는 프로토타입입니다.
+      </p>
+    </header>
+    <main>
+      <section class="stepper" id="stepper">
+        <div class="step active" data-step="1" role="button" tabindex="0">
+          <small>Step 1</small>
+          <h3>검사 소개</h3>
+        </div>
+        <div class="step" data-step="2" role="button" tabindex="0">
+          <small>Step 2</small>
+          <h3>문진표 작성</h3>
+        </div>
+        <div class="step" data-step="3" role="button" tabindex="0">
+          <small>Step 3</small>
+          <h3>내용 분석</h3>
+        </div>
+        <div class="step" data-step="4" role="button" tabindex="0">
+          <small>Step 4</small>
+          <h3>결과 · 사후관리</h3>
+        </div>
+      </section>
+
+      <div class="progress" aria-hidden="true">
+        <div id="progress-bar"></div>
+      </div>
+
+      <section class="card page active" id="step-1" data-step="1">
+        <h2>검사 소개</h2>
+        <p class="pill">지침 기반 위험도 평가</p>
+        <p>
+          이 서비스는 문진(생활습관·과거/현 병력·가족력)과 건강지표(혈압, 혈중지질, 혈당 등)를
+          통해 뇌·심혈관질환 발병 위험도를 분류하고, 위험 수준별 사후관리 방향을 제시합니다.
+        </p>
+        <div class="section-divider"></div>
+        <div class="grid">
+          <div>
+            <strong>평가 흐름</strong>
+            <ul class="list">
+              <li>문진표 작성(필수 + 선택 항목)</li>
+              <li>혈압 분류 및 위험인자 개수 계산</li>
+              <li>위험수준(건강/저/중등도/고위험) 분류</li>
+              <li>생활습관·질병관리·근무조치 안내</li>
+            </ul>
+          </div>
+          <div>
+            <strong>주의 사항</strong>
+            <ul class="list">
+              <li>의학적 진단이 아닌 참고용 분석입니다.</li>
+              <li>증상 또는 고위험 요인이 있으면 의료진 상담이 필요합니다.</li>
+              <li>개인정보는 로컬 브라우저에서만 처리됩니다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="ghost" id="to-first-from-1" disabled>처음으로</button>
+          </div>
+          <div class="right">
+            <button type="button" id="next-from-1">다음</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card page" id="step-2" data-step="2">
+        <h2>자체 문진표 작성</h2>
+        <p>지침의 필수 항목과 선택 항목을 간단히 입력해 주세요.</p>
+        <form id="survey-form">
+          <div class="grid">
+            <div>
+              <label>성별</label>
+              <div class="radio-group">
+                <label class="radio-row"><input type="radio" name="gender" value="male" checked /> 남자</label>
+                <label class="radio-row"><input type="radio" name="gender" value="female" /> 여자</label>
+              </div>
+            </div>
+            <div>
+              <label>연령</label>
+              <input type="number" name="age" min="18" max="100" placeholder="예: 45" />
+              <div class="hint">남 55세 이상, 여 65세 이상은 위험인자에 포함됩니다.</div>
+            </div>
+            <div>
+              <label>키 (cm)</label>
+              <input type="number" name="height" min="120" max="220" placeholder="예: 170" />
+            </div>
+            <div>
+              <label>체중 (kg)</label>
+              <input type="number" name="weight" min="35" max="200" placeholder="예: 72" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>혈압 (mmHg)</label>
+              <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <input type="number" name="sbp" min="70" max="250" placeholder="수축기" />
+                <input type="number" name="dbp" min="40" max="150" placeholder="이완기" />
+              </div>
+              <div class="hint">혈압 수치는 가장 최근 측정치를 입력하세요.</div>
+            </div>
+            <div>
+              <label>흡연</label>
+              <select name="smoking">
+                <option value="no">현재 흡연하지 않음</option>
+                <option value="yes">현재 흡연 중</option>
+              </select>
+            </div>
+            <div>
+              <label>운동 습관</label>
+              <select name="activity">
+                <option value="adequate">주 3일 이상, 1회 30분 이상</option>
+                <option value="insufficient">운동 부족</option>
+              </select>
+            </div>
+            <div>
+              <label>음주</label>
+              <select name="alcohol">
+                <option value="low">낮음</option>
+                <option value="moderate">보통</option>
+                <option value="high">높음</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>가족력 (50세 이전)</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="familyStroke" /> 뇌졸중</label>
+                <label class="checkbox-row"><input type="checkbox" name="familyAngina" /> 협심증</label>
+                <label class="checkbox-row"><input type="checkbox" name="familyMI" /> 심근경색증</label>
+              </div>
+            </div>
+            <div>
+              <label>과거/현 병력</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="historyDiabetes" /> 당뇨</label>
+                <label class="checkbox-row"><input type="checkbox" name="historyTIA" /> 일과성 뇌허혈발작</label>
+                <label class="checkbox-row"><input type="checkbox" name="historyStroke" /> 뇌졸중(뇌경색/출혈)</label>
+                <label class="checkbox-row"><input type="checkbox" name="historyAngina" /> 협심증</label>
+                <label class="checkbox-row"><input type="checkbox" name="historyMI" /> 심근경색증</label>
+              </div>
+            </div>
+            <div>
+              <label>혈중지질 (mg/dL)</label>
+              <input type="number" name="totalChol" min="80" max="400" placeholder="총콜레스테롤" />
+              <input type="number" name="hdl" min="10" max="120" placeholder="HDL 콜레스테롤" style="margin-top: 8px;" />
+              <input type="number" name="tg" min="30" max="700" placeholder="트리글리세라이드" style="margin-top: 8px;" />
+              <div class="hint">LDL = 총콜레스테롤 - HDL - (TG/5)</div>
+            </div>
+            <div>
+              <label>혈당 (mg/dL)</label>
+              <input type="number" name="glucose" min="50" max="400" placeholder="공복 혈당" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>표적장기손상 여부</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="lVH" /> 좌심실비대</label>
+                <label class="checkbox-row"><input type="checkbox" name="proteinuria" /> 단백뇨</label>
+                <label class="checkbox-row"><input type="checkbox" name="atherosclerosis" /> 죽상동맥경화증</label>
+                <label class="checkbox-row"><input type="checkbox" name="retinopathy" /> 고혈압성망막증 (III~IV)</label>
+              </div>
+            </div>
+            <div>
+              <label>동반 질병</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="comorbCVD" /> 심근경색·협심증·관상동맥재건술</label>
+                <label class="checkbox-row"><input type="checkbox" name="comorbCerebro" /> 뇌혈관질환(뇌졸중·뇌출혈)</label>
+                <label class="checkbox-row"><input type="checkbox" name="comorbKidney" /> 신장질환/신부전</label>
+                <label class="checkbox-row"><input type="checkbox" name="comorbPeripheral" /> 말초혈관질환</label>
+              </div>
+            </div>
+            <div>
+              <label>기타 위험인자</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="afib" /> 심방세동 (뇌졸중 위험)</label>
+              </div>
+            </div>
+            <div>
+              <label>근무 환경</label>
+              <div class="checkbox-group">
+                <label class="checkbox-row"><input type="checkbox" name="longHours" /> 주 60시간 이상 장시간 노동</label>
+                <label class="checkbox-row"><input type="checkbox" name="nightShift" /> 고정적인 야간작업</label>
+                <label class="checkbox-row"><input type="checkbox" name="heavyWork" /> 중노동·고열/한랭 작업</label>
+                <label class="checkbox-row"><input type="checkbox" name="highStress" /> 정신적 부담이 큰 업무</label>
+                <label class="checkbox-row"><input type="checkbox" name="noise" /> 소음이 심한 부서</label>
+                <label class="checkbox-row"><input type="checkbox" name="chemicals" /> 순환기계 유해물질 노출</label>
+                <label class="checkbox-row"><input type="checkbox" name="drivingHeights" /> 운전·고소작업</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="actions">
+            <button type="button" id="analyze-btn">내용 분석하기</button>
+            <button type="reset" class="secondary">입력 초기화</button>
+          </div>
+        </form>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="secondary" id="prev-from-2">이전</button>
+            <button type="button" class="ghost" id="to-first-from-2">처음으로</button>
+          </div>
+          <div class="right">
+            <button type="button" id="next-from-2">다음</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card page" id="step-3" data-step="3">
+        <h2>내용 분석</h2>
+        <div class="analysis-grid" id="analysis-grid">
+          <div class="analysis-item">
+            <strong>혈압 분류</strong>
+            <span id="bp-class" class="badge">-</span>
+            <p class="hint" id="bp-detail">수축기/이완기 입력 후 표시됩니다.</p>
+          </div>
+          <div class="analysis-item">
+            <strong>위험인자 개수</strong>
+            <span id="risk-count" class="badge">-</span>
+            <p class="hint" id="risk-list">체크된 위험인자가 표시됩니다.</p>
+          </div>
+          <div class="analysis-item">
+            <strong>LDL 추정</strong>
+            <span id="ldl-value" class="badge">-</span>
+            <p class="hint">총콜레스테롤 - HDL - (TG/5)</p>
+          </div>
+          <div class="analysis-item">
+            <strong>BMI</strong>
+            <span id="bmi-value" class="badge">-</span>
+            <p class="hint" id="bmi-detail">체중/신장 입력 후 계산됩니다.</p>
+          </div>
+        </div>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="secondary" id="prev-from-3">이전</button>
+            <button type="button" class="ghost" id="to-first-from-3">처음으로</button>
+          </div>
+          <div class="right">
+            <button type="button" id="next-from-3">다음</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card page" id="step-4" data-step="4">
+        <h2>결과 도출</h2>
+        <div class="result-banner">
+          <div>
+            <div class="pill">뇌·심혈관질환 발병위험도</div>
+            <h3 id="risk-level" style="margin: 8px 0 0;">-</h3>
+          </div>
+          <div id="risk-tag" class="risk-tag risk-low">-</div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <strong>위험도 해석</strong>
+            <p id="risk-summary">문진 결과를 입력하면 위험도 요약이 표시됩니다.</p>
+          </div>
+          <div>
+            <strong>주요 악화 요인</strong>
+            <ul class="list" id="risk-factors-list">
+              <li>입력값을 기반으로 표시됩니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h3>사후관리 지침</h3>
+        <div class="grid">
+          <div>
+            <strong>생활습관 개선</strong>
+            <ul class="list" id="lifestyle-guidance"></ul>
+          </div>
+          <div>
+            <strong>질병 관리/의료 상담</strong>
+            <ul class="list" id="medical-guidance"></ul>
+          </div>
+          <div>
+            <strong>근무상 조치</strong>
+            <ul class="list" id="work-guidance"></ul>
+          </div>
+        </div>
+
+        <p class="footer-note">
+          본 결과는 KOSHA CODE H-11-2004 지침을 간략화한 참고용 안내입니다.
+          증상이 있거나 고위험군에 해당하면 의료진 상담과 정밀검사가 필요합니다.
+        </p>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="secondary" id="prev-from-4">이전</button>
+          </div>
+          <div class="right">
+            <button type="button" class="ghost" id="to-first-from-4">처음으로</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("survey-form");
+      const analyzeBtn = document.getElementById("analyze-btn");
+      const stepper = document.getElementById("stepper");
+      const progressBar = document.getElementById("progress-bar");
+      const pages = Array.from(document.querySelectorAll(".page"));
+
+      const bpClassEl = document.getElementById("bp-class");
+      const bpDetailEl = document.getElementById("bp-detail");
+      const riskCountEl = document.getElementById("risk-count");
+      const riskListEl = document.getElementById("risk-list");
+      const ldlEl = document.getElementById("ldl-value");
+      const bmiEl = document.getElementById("bmi-value");
+      const bmiDetailEl = document.getElementById("bmi-detail");
+
+      const riskLevelEl = document.getElementById("risk-level");
+      const riskTagEl = document.getElementById("risk-tag");
+      const riskSummaryEl = document.getElementById("risk-summary");
+      const riskFactorsListEl = document.getElementById("risk-factors-list");
+      const lifestyleEl = document.getElementById("lifestyle-guidance");
+      const medicalEl = document.getElementById("medical-guidance");
+      const workEl = document.getElementById("work-guidance");
+
+      const navButtons = {
+        next1: document.getElementById("next-from-1"),
+        next2: document.getElementById("next-from-2"),
+        next3: document.getElementById("next-from-3"),
+        prev2: document.getElementById("prev-from-2"),
+        prev3: document.getElementById("prev-from-3"),
+        prev4: document.getElementById("prev-from-4"),
+        first2: document.getElementById("to-first-from-2"),
+        first3: document.getElementById("to-first-from-3"),
+        first4: document.getElementById("to-first-from-4"),
+      };
+
+      let currentStep = 1;
+
+      function getNumber(name) {
+        const value = form.elements[name].value;
+        if (!value) return null;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : null;
+      }
+
+      function getChecked(name) {
+        return form.elements[name]?.checked;
+      }
+
+      function getRadio(name) {
+        return form.elements[name].value;
+      }
+
+      function classifyBP(sbp, dbp) {
+        if (sbp == null || dbp == null) return { label: "미입력", grade: 0 };
+        if (sbp >= 180 || dbp >= 110) return { label: "3도 고혈압", grade: 3 };
+        if (sbp >= 160 || dbp >= 100) return { label: "2도 고혈압", grade: 2 };
+        if (sbp >= 140 || dbp >= 90) return { label: "1도 고혈압", grade: 1 };
+        if (sbp >= 135 || dbp >= 85) return { label: "높은 정상", grade: 0 };
+        if (sbp >= 130 || dbp >= 85) return { label: "정상", grade: 0 };
+        return { label: "최적", grade: 0 };
+      }
+
+      function calculateBMI(height, weight) {
+        if (!height || !weight) return null;
+        const meters = height / 100;
+        return weight / (meters * meters);
+      }
+
+      function calculateLDL(total, hdl, tg) {
+        if (total == null || hdl == null || tg == null) return null;
+        return total - hdl - tg / 5;
+      }
+
+      function formatNumber(value, digits = 1) {
+        if (value == null || Number.isNaN(value)) return "-";
+        return value.toFixed(digits);
+      }
+
+      function buildList(listEl, items) {
+        listEl.innerHTML = "";
+        if (!items.length) {
+          const li = document.createElement("li");
+          li.textContent = "특이 사항이 없습니다.";
+          listEl.appendChild(li);
+          return;
+        }
+        items.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          listEl.appendChild(li);
+        });
+      }
+
+      function riskLevelTag(level) {
+        riskTagEl.className = "risk-tag";
+        if (level === "고위험군") riskTagEl.classList.add("risk-high");
+        else if (level === "중등도위험군") riskTagEl.classList.add("risk-mid");
+        else if (level === "저위험군") riskTagEl.classList.add("risk-low");
+        else riskTagEl.classList.add("risk-low");
+      }
+
+      function setStep(step) {
+        currentStep = step;
+        pages.forEach((page) => {
+          page.classList.toggle("active", Number(page.dataset.step) === step);
+        });
+        document.querySelectorAll(".step").forEach((item) => {
+          item.classList.toggle("active", Number(item.dataset.step) === step);
+        });
+        progressBar.style.width = `${step * 25}%`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function clearResults() {
+        bpClassEl.textContent = "-";
+        bpDetailEl.textContent = "수축기/이완기 입력 후 표시됩니다.";
+        riskCountEl.textContent = "-";
+        riskListEl.textContent = "체크된 위험인자가 표시됩니다.";
+        ldlEl.textContent = "-";
+        bmiEl.textContent = "-";
+        bmiDetailEl.textContent = "체중/신장 입력 후 계산됩니다.";
+        riskLevelEl.textContent = "-";
+        riskTagEl.textContent = "-";
+        riskTagEl.className = "risk-tag risk-low";
+        riskSummaryEl.textContent = "문진 결과를 입력하면 위험도 요약이 표시됩니다.";
+        riskFactorsListEl.innerHTML = "<li>입력값을 기반으로 표시됩니다.</li>";
+        lifestyleEl.innerHTML = "";
+        medicalEl.innerHTML = "";
+        workEl.innerHTML = "";
+      }
+
+      function runAnalysis() {
+        const gender = getRadio("gender");
+        const age = getNumber("age");
+        const sbp = getNumber("sbp");
+        const dbp = getNumber("dbp");
+        const totalChol = getNumber("totalChol");
+        const hdl = getNumber("hdl");
+        const tg = getNumber("tg");
+        const bmi = calculateBMI(getNumber("height"), getNumber("weight"));
+        const ldl = calculateLDL(totalChol, hdl, tg);
+
+        const bp = classifyBP(sbp, dbp);
+        bpClassEl.textContent = bp.label;
+        bpDetailEl.textContent = sbp && dbp ? `${sbp}/${dbp} mmHg 기준` : "수축기/이완기 입력 필요";
+
+        bmiEl.textContent = bmi ? formatNumber(bmi) : "-";
+        bmiDetailEl.textContent = bmi ? (bmi >= 30 ? "BMI 30 이상(비만)" : "BMI 30 미만") : "키/체중 입력 필요";
+        ldlEl.textContent = ldl ? `${formatNumber(ldl)} mg/dL` : "-";
+
+        const riskFactors = [];
+
+        if (age != null) {
+          if ((gender === "male" && age >= 55) || (gender === "female" && age >= 65)) {
+            riskFactors.push("연령 기준 초과");
+          }
+        }
+        if (form.elements["smoking"].value === "yes") {
+          riskFactors.push("현재 흡연");
+        }
+        if (form.elements["activity"].value === "insufficient") {
+          riskFactors.push("운동 부족");
+        }
+        if (bmi != null && bmi >= 30) {
+          riskFactors.push("BMI 30 이상 비만");
+        }
+        const familyRisk =
+          getChecked("familyStroke") || getChecked("familyAngina") || getChecked("familyMI");
+        if (familyRisk) {
+          riskFactors.push("직계가족 조기 발병 가족력");
+        }
+        if (totalChol != null && totalChol >= 240) {
+          riskFactors.push("총콜레스테롤 240 이상");
+        }
+        if (ldl != null && ldl >= 160) {
+          riskFactors.push("LDL 160 이상");
+        }
+        if (hdl != null && hdl < 35) {
+          riskFactors.push("HDL 35 미만");
+        }
+        if (getChecked("afib")) {
+          riskFactors.push("심방세동");
+        }
+        const highHDL = hdl != null && hdl >= 60;
+        if (highHDL) {
+          riskFactors.push("HDL 60 이상(완화 인자)");
+        }
+
+        const targetOrgan =
+          getChecked("lVH") ||
+          getChecked("proteinuria") ||
+          getChecked("atherosclerosis") ||
+          getChecked("retinopathy");
+
+        const comorbid =
+          getChecked("historyDiabetes") ||
+          getChecked("historyStroke") ||
+          getChecked("historyAngina") ||
+          getChecked("historyMI") ||
+          getChecked("comorbCVD") ||
+          getChecked("comorbCerebro") ||
+          getChecked("comorbKidney") ||
+          getChecked("comorbPeripheral");
+
+        let riskFactorCount = riskFactors.filter((item) => item !== "HDL 60 이상(완화 인자)").length;
+        if (highHDL && riskFactorCount > 0) riskFactorCount -= 1;
+
+        riskCountEl.textContent = `${riskFactorCount}개`;
+        riskListEl.textContent = riskFactors.length ? riskFactors.join(", ") : "특이 위험인자 없음";
+
+        let riskLevel = "건강군";
+        if (bp.grade >= 1) {
+          if (targetOrgan || comorbid || riskFactorCount >= 3) {
+            riskLevel = "고위험군";
+          } else if (riskFactorCount >= 1) {
+            riskLevel = bp.grade === 1 ? "중등도위험군" : "중등도위험군";
+          } else {
+            riskLevel = bp.grade === 1 ? "저위험군" : "중등도위험군";
+          }
+        } else {
+          if (comorbid || targetOrgan) riskLevel = "고위험군";
+          else if (riskFactorCount >= 3) riskLevel = "중등도위험군";
+          else if (riskFactorCount >= 1) riskLevel = "저위험군";
+          else riskLevel = "건강군";
+        }
+
+        riskLevelEl.textContent = riskLevel;
+        riskTagEl.textContent = riskLevel;
+        riskLevelTag(riskLevel);
+
+        let summary = "문진 결과에 따라 생활습관 개선 중심의 관리가 필요합니다.";
+        if (riskLevel === "고위험군") {
+          summary = "고위험군으로 분류되었습니다. 즉시 전문의 상담과 치료 계획이 필요합니다.";
+        } else if (riskLevel === "중등도위험군") {
+          summary = "중등도위험군입니다. 정기적 추적관찰과 적극적인 생활습관 개선이 필요합니다.";
+        } else if (riskLevel === "저위험군") {
+          summary = "저위험군입니다. 위험인자 개선과 정기적 모니터링이 권장됩니다.";
+        } else {
+          summary = "건강군입니다. 현재 생활습관을 유지하면서 정기적인 평가를 받으세요.";
+        }
+        riskSummaryEl.textContent = summary;
+
+        const factorsOut = [];
+        if (bp.grade >= 1) factorsOut.push("혈압이 고혈압 범주에 해당");
+        if (riskFactorCount > 0) factorsOut.push(`위험인자 ${riskFactorCount}개 보유`);
+        if (targetOrgan) factorsOut.push("표적장기 손상 의심");
+        if (comorbid) factorsOut.push("동반 질병 존재");
+        if (factorsOut.length === 0) factorsOut.push("특이 위험요인 없음");
+        buildList(riskFactorsListEl, factorsOut);
+
+        const lifestyle = [
+          "금연 및 간접흡연 회피",
+          "주 3회 이상, 1회 30분 이상 유산소 운동",
+          "염분·포화지방 줄인 균형 잡힌 식사",
+          "체중 관리와 허리둘레 관리",
+          "과음 회피 및 주당 음주량 조절",
+          "충분한 수면과 스트레스 관리",
+        ];
+        buildList(lifestyleEl, lifestyle);
+
+        const medical = [];
+        if (bp.grade >= 1) {
+          if (riskLevel === "저위험군") {
+            medical.push("6~12개월 관찰 후 필요 시 약물치료 (SBP 150 또는 DBP 95 이상이면 약물치료 고려)");
+          } else if (riskLevel === "중등도위험군") {
+            medical.push("3~6개월 관찰 후 SBP 140 또는 DBP 90 이상이면 약물치료 고려");
+          } else {
+            medical.push("즉시 약물치료 시작 + 비약물치료 병행 권장");
+          }
+        }
+        if (ldl != null) {
+          if (comorbid || getChecked("historyDiabetes")) {
+            medical.push("LDL 목표 100 mg/dL 미만 유지 (6개월 이상 생활요법 후에도 미조절 시 약물 고려)");
+          } else if (riskFactorCount >= 2) {
+            medical.push("LDL 목표 130 mg/dL 미만 유지 (생활요법 또는 약물요법)");
+          } else {
+            medical.push("LDL 목표 160 mg/dL 미만 유지 (생활요법 중심)");
+          }
+        } else {
+          medical.push("혈중지질 검사 결과를 확인하여 LDL 목표 설정");
+        }
+        if (getChecked("historyDiabetes") || getChecked("historyStroke") || getChecked("historyMI")) {
+          medical.push("기초질환·기존질환에 대한 지속적인 치료 및 추적검사 필요");
+        }
+        buildList(medicalEl, medical);
+
+        const work = [];
+        const workRisk =
+          getChecked("longHours") ||
+          getChecked("nightShift") ||
+          getChecked("heavyWork") ||
+          getChecked("highStress") ||
+          getChecked("noise") ||
+          getChecked("chemicals") ||
+          getChecked("drivingHeights");
+        if (riskLevel === "고위험군" || workRisk) {
+          work.push("장시간 노동·야간작업·고강도 작업은 제한 권장");
+          work.push("고열/한랭·산소부족 환경은 작업전환 고려");
+          if (getChecked("afib") || getChecked("drivingHeights")) {
+            work.push("부정맥이 있을 경우 운전/고소작업 제한");
+          }
+        } else {
+          work.push("현재 업무 유지 가능하나 과로 및 야간근무는 예방적으로 관리");
+        }
+        buildList(workEl, work);
+      }
+
+      analyzeBtn.addEventListener("click", () => {
+        runAnalysis();
+        setStep(3);
+      });
+
+      stepper.addEventListener("click", (event) => {
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        const step = Number(stepEl.dataset.step);
+        if (step === 3 || step === 4) runAnalysis();
+        setStep(step);
+      });
+
+      stepper.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        event.preventDefault();
+        const step = Number(stepEl.dataset.step);
+        if (step === 3 || step === 4) runAnalysis();
+        setStep(step);
+      });
+
+      navButtons.next1.addEventListener("click", () => setStep(2));
+      navButtons.prev2.addEventListener("click", () => setStep(1));
+      navButtons.next2.addEventListener("click", () => {
+        runAnalysis();
+        setStep(3);
+      });
+      navButtons.prev3.addEventListener("click", () => setStep(2));
+      navButtons.next3.addEventListener("click", () => {
+        runAnalysis();
+        setStep(4);
+      });
+      navButtons.prev4.addEventListener("click", () => setStep(3));
+      navButtons.first2.addEventListener("click", () => setStep(1));
+      navButtons.first3.addEventListener("click", () => setStep(1));
+      navButtons.first4.addEventListener("click", () => setStep(1));
+
+      form.addEventListener("reset", () => {
+        setTimeout(() => {
+          clearResults();
+        }, 0);
+      });
+
+      setStep(1);
+    </script>
+  </body>
+</html>
