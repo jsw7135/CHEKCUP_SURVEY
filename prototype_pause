@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>60초 호흡 리셋</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f6f2;
+        --surface: #ffffff;
+        --text: #1f2227;
+        --muted: #6a707c;
+        --accent: #2b7a78;
+        --accent-soft: #e6f2f1;
+        --border: #e3e0da;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px 20px 60px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      header a {
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .card {
+        margin-top: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 28px;
+      }
+
+      .breath-area {
+        display: grid;
+        place-items: center;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: var(--accent-soft);
+        display: grid;
+        place-items: center;
+        transition: transform 4s ease-in-out, background 0.6s ease;
+      }
+
+      .circle.active {
+        transform: scale(1.1);
+        background: #cfe9e7;
+      }
+
+      .phase {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .timer {
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      button {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+
+      .guide {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 640px) {
+        .circle {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>60초 호흡 리셋</h1>
+        <a href="index.html">홈으로</a>
+      </header>
+
+      <div class="card">
+        <div class="breath-area">
+          <div id="circle" class="circle">
+            <div class="phase" id="phase">준비</div>
+          </div>
+          <div class="timer" id="timer">01:00</div>
+        </div>
+        <div class="actions">
+          <button id="startBtn">시작</button>
+          <button id="pauseBtn" class="secondary">일시정지</button>
+          <button id="resetBtn" class="secondary">리셋</button>
+        </div>
+        <div class="guide">
+          들이쉬기 4초 · 멈춤 4초 · 내쉬기 4초 · 멈춤 4초를 반복합니다.
+          눈을 감고 천천히 따라 해보세요.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const phases = [
+        { label: "들이쉬기", duration: 4, active: true },
+        { label: "멈춤", duration: 4, active: false },
+        { label: "내쉬기", duration: 4, active: true },
+        { label: "멈춤", duration: 4, active: false },
+      ];
+
+      const timerEl = document.getElementById("timer");
+      const phaseEl = document.getElementById("phase");
+      const circleEl = document.getElementById("circle");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      let totalSeconds = 60;
+      let phaseIndex = 0;
+      let phaseSeconds = phases[0].duration;
+      let intervalId = null;
+      let running = false;
+
+      function formatTime(value) {
+        const minutes = String(Math.floor(value / 60)).padStart(2, "0");
+        const seconds = String(value % 60).padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function updateView() {
+        timerEl.textContent = formatTime(totalSeconds);
+        phaseEl.textContent = phases[phaseIndex].label;
+        if (phases[phaseIndex].active) {
+          circleEl.classList.add("active");
+        } else {
+          circleEl.classList.remove("active");
+        }
+      }
+
+      function tick() {
+        if (totalSeconds <= 0) {
+          stopTimer();
+          return;
+        }
+
+        totalSeconds -= 1;
+        phaseSeconds -= 1;
+        if (phaseSeconds <= 0) {
+          phaseIndex = (phaseIndex + 1) % phases.length;
+          phaseSeconds = phases[phaseIndex].duration;
+        }
+        updateView();
+      }
+
+      function startTimer() {
+        if (running) return;
+        running = true;
+        intervalId = setInterval(tick, 1000);
+      }
+
+      function stopTimer() {
+        running = false;
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      function resetTimer() {
+        stopTimer();
+        totalSeconds = 60;
+        phaseIndex = 0;
+        phaseSeconds = phases[0].duration;
+        updateView();
+      }
+
+      startBtn.addEventListener("click", startTimer);
+      pauseBtn.addEventListener("click", stopTimer);
+      resetBtn.addEventListener("click", resetTimer);
+
+      updateView();
+    </script>
+  </body>
+</html>
