@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3분 마이크로 스트레칭</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f6f3;
+        --surface: #ffffff;
+        --text: #1f2227;
+        --muted: #6a707c;
+        --accent: #2b7a78;
+        --accent-soft: #e6f2f1;
+        --border: #e3e0da;
+        --shadow: 0 16px 36px rgba(30, 31, 35, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px 20px 60px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      header a {
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .card {
+        margin-top: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .step:last-child {
+        border-bottom: none;
+      }
+
+      .step span {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        background: var(--accent-soft);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .timer {
+        margin-top: 16px;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+
+      .note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>3분 마이크로 스트레칭</h1>
+        <a href="index.html">홈으로</a>
+      </header>
+
+      <div class="card">
+        <div class="step">
+          <span>1</span>
+          <div>
+            <strong>목 돌리기</strong>
+            <p>천천히 좌우로 돌리며 호흡 3회</p>
+          </div>
+        </div>
+        <div class="step">
+          <span>2</span>
+          <div>
+            <strong>어깨 올렸다 내리기</strong>
+            <p>어깨를 귀 쪽으로 올렸다가 힘을 풀기 5회</p>
+          </div>
+        </div>
+        <div class="step">
+          <span>3</span>
+          <div>
+            <strong>등 펴기</strong>
+            <p>양손을 깍지 끼고 앞으로 밀어 등 늘이기 20초</p>
+          </div>
+        </div>
+        <div class="step">
+          <span>4</span>
+          <div>
+            <strong>허리 좌우 스트레칭</strong>
+            <p>앉은 상태에서 허리를 좌우로 늘이기 20초</p>
+          </div>
+        </div>
+
+        <div class="timer" id="timer">03:00</div>
+        <div class="actions">
+          <button id="startBtn">시작</button>
+          <button id="pauseBtn" class="secondary">일시정지</button>
+          <button id="resetBtn" class="secondary">리셋</button>
+        </div>
+        <div class="note">
+          통증이 심하거나 무리가 느껴지면 즉시 중단하세요. 이 루틴은 웰니스
+          목적의 간단한 스트레칭입니다.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const timerEl = document.getElementById("timer");
+      const startBtn = document.getElementById("startBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      let totalSeconds = 180;
+      let intervalId = null;
+      let running = false;
+
+      function formatTime(value) {
+        const minutes = String(Math.floor(value / 60)).padStart(2, "0");
+        const seconds = String(value % 60).padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function tick() {
+        if (totalSeconds <= 0) {
+          stopTimer();
+          return;
+        }
+        totalSeconds -= 1;
+        timerEl.textContent = formatTime(totalSeconds);
+      }
+
+      function startTimer() {
+        if (running) return;
+        running = true;
+        intervalId = setInterval(tick, 1000);
+      }
+
+      function stopTimer() {
+        running = false;
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      function resetTimer() {
+        stopTimer();
+        totalSeconds = 180;
+        timerEl.textContent = formatTime(totalSeconds);
+      }
+
+      startBtn.addEventListener("click", startTimer);
+      pauseBtn.addEventListener("click", stopTimer);
+      resetBtn.addEventListener("click", resetTimer);
+
+      timerEl.textContent = formatTime(totalSeconds);
+    </script>
+  </body>
+</html>
