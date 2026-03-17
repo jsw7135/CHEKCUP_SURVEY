@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VitaCheck · 나를 돌아보는 곳</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f6f2;
+        --surface: #ffffff;
+        --text: #1e1f23;
+        --muted: #5f6673;
+        --accent: #2b7a78;
+        --accent-soft: #e6f2f1;
+        --border: #e6e3dd;
+        --shadow: 0 16px 36px rgba(30, 31, 35, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        padding: 28px 0 40px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand span {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        border-radius: 14px;
+        background: var(--accent);
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      .nav {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .hero {
+        margin-top: 40px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        align-items: center;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+        margin: 0 0 12px;
+        line-height: 1.25;
+      }
+
+      .hero p {
+        margin: 0 0 20px;
+        color: var(--muted);
+      }
+
+      .cta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: var(--shadow);
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        box-shadow: none;
+      }
+
+      .hero-card {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+      }
+
+      .hero-card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      main {
+        padding: 20px 0 60px;
+      }
+
+      .section {
+        margin-top: 36px;
+      }
+
+      .section h2 {
+        margin: 0 0 6px;
+        font-size: 22px;
+      }
+
+      .section p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .card .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .card a {
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .quote {
+        background: var(--accent-soft);
+        border-radius: 18px;
+        padding: 20px;
+        color: #30514f;
+        font-size: 15px;
+      }
+
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+
+      .mini-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      footer {
+        padding: 24px 0 40px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .hero h1 {
+          font-size: 28px;
+        }
+
+        .card .meta {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <span>V</span>
+          VitaCheck
+        </div>
+        <nav class="nav">
+          <a href="#check">자가진단</a>
+          <a href="#pause">쉬어가기</a>
+          <a href="#questions">오늘의 질문</a>
+        </nav>
+      </div>
+
+      <section class="hero">
+        <div>
+          <h1>언제 스스로를 돌보셨나요?</h1>
+          <p>
+            바쁜 하루에서도 잠깐 멈추고 나를 확인하는 시간. 문진과 작은
+            쉬어가기 콘텐츠를 통해 몸과 마음의 신호를 천천히 살펴보세요.
+          </p>
+          <div class="cta">
+            <a class="button" href="#check">자가진단 시작</a>
+            <a class="button secondary" href="#pause">쉬어가기</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h3>오늘의 루틴</h3>
+          <ul>
+            <li>내 몸의 신호를 점검하기</li>
+            <li>1분 호흡으로 리셋하기</li>
+            <li>짧은 질문으로 나를 돌아보기</li>
+          </ul>
+        </div>
+      </section>
+    </header>
+
+    <main class="wrap">
+      <section id="check" class="section">
+        <h2>자가진단 도구</h2>
+        <p>의학적 판단이 아닌 웰니스 관점의 셀프 체크입니다.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>심혈관질환 웰니스 문진</h3>
+            <p>혈압, 혈당, 콜레스테롤과 생활습관을 기반으로 위험 신호를 확인합니다.</p>
+            <div class="meta">
+              <span>예상 소요 3~5분</span>
+              <a href="https://proto.careself.kr/prototype_cvd.html">바로가기 →</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>근골격계 증상 문진</h3>
+            <p>통증 부위와 빈도를 체크하고 작업/생활 개선 방향을 제안합니다.</p>
+            <div class="meta">
+              <span>예상 소요 5~7분</span>
+              <a href="https://proto.careself.kr/prototype_msk.html">바로가기 →</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>뇌심발병위험도 평가</h3>
+            <p>문진과 건강지표를 기반으로 위험 수준과 사후관리 지침을 제공합니다.</p>
+            <div class="meta">
+              <span>예상 소요 4~6분</span>
+              <a href="https://proto.careself.kr/prototype.html">바로가기 →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pause" class="section">
+        <h2>쉬어가기 콘텐츠</h2>
+        <p>짧고 심플한 콘텐츠로 숨을 고르고 리듬을 되찾아보세요.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>60초 호흡 리셋</h3>
+            <p>짧은 호흡 가이드로 긴장을 풀고 집중을 되찾습니다.</p>
+            <div class="meta">
+              <span>소요 1분</span>
+              <a href="prototype_pause.html">바로가기 →</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>오늘의 나 돌아보기</h3>
+            <p>가벼운 질문 5개로 오늘의 감정과 에너지를 정리합니다.</p>
+            <div class="meta">
+              <span>소요 2~3분</span>
+              <a href="prototype_reflection.html">바로가기 →</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>3분 마이크로 스트레칭</h3>
+            <p>목, 어깨, 허리를 가볍게 풀어주는 루틴을 제공합니다.</p>
+            <div class="meta">
+              <span>소요 3분</span>
+              <a href="prototype_microbreak.html">바로가기 →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="questions" class="section">
+        <h2>오늘의 작은 질문</h2>
+        <p>한 줄 기록으로 마음의 온도를 확인해보세요.</p>
+        <div class="mini-grid">
+          <div class="mini-card">지금 내 몸은 무엇을 말하고 있나요?</div>
+          <div class="mini-card">오늘 나를 도운 작은 행동은?</div>
+          <div class="mini-card">내가 잠깐 쉬어가도 괜찮은 이유는?</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="quote">
+          오늘의 점검은 내일을 위한 작은 여유입니다. 큰 변화보다 작은 리듬을
+          만드는 것부터 시작하세요.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      VitaCheck · 나를 돌아보는 웰니스 플랫폼 (프로토타입)
+    </footer>
+  </body>
+</html>
