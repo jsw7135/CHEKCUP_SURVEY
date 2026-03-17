@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VitaCheck · 심혈관질환 웰니스 문진</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --card: #ffffff;
+        --text: #1d2430;
+        --muted: #637081;
+        --accent: #3b6ff5;
+        --accent-weak: #eef3ff;
+        --border: #e3e7ee;
+        --shadow: 0 10px 26px rgba(18, 26, 47, 0.08);
+        --success: #2f855a;
+        --warning: #d38c1c;
+        --danger: #d64545;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      header {
+        background: linear-gradient(120deg, #3b6ff5, #5b9dff);
+        color: #fff;
+        padding: 36px 20px 28px;
+      }
+
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      header p {
+        margin: 0;
+        max-width: 780px;
+        opacity: 0.9;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 20px 70px;
+      }
+
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .step {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      .step:hover {
+        transform: translateY(-2px);
+        border-color: #c7d2fe;
+      }
+
+      .step.active {
+        border-color: var(--accent);
+      }
+
+      .step small {
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+
+      .step h3 {
+        margin: 6px 0 0;
+        font-size: 16px;
+      }
+
+      .progress {
+        height: 10px;
+        background: #e8ebf0;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .progress > div {
+        height: 100%;
+        width: 33.3%;
+        background: linear-gradient(90deg, #3b6ff5, #77a5ff);
+        transition: width 0.3s ease;
+      }
+
+      .page {
+        display: none;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .pill {
+        display: inline-block;
+        background: var(--accent-weak);
+        color: var(--accent);
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .radio-group,
+      .checkbox-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .radio-row,
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        background: var(--accent);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      button.ghost {
+        background: transparent;
+        border: 1px dashed var(--border);
+        color: var(--muted);
+      }
+
+      .page-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .page-nav .left,
+      .page-nav .right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .result-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #f9fbff;
+      }
+
+      .level-tag {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .level-low {
+        background: #e7f6ee;
+        color: var(--success);
+      }
+
+      .level-mid {
+        background: #fff3db;
+        color: var(--warning);
+      }
+
+      .level-high {
+        background: #fde7e7;
+        color: var(--danger);
+      }
+
+      .list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+      }
+
+      .metric strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eef2ff;
+        color: #3b5bcc;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>VitaCheck · 심혈관질환 웰니스 문진</h1>
+      <p>
+        건강 데이터를 바탕으로 심혈관 위험 신호를 스스로 점검하는 웰니스 문진입니다.
+        의학적 진단이 아닌 개선 방향 안내를 제공하며, 결과는 즉시 확인할 수 있습니다.
+      </p>
+    </header>
+    <main>
+      <section class="stepper" id="stepper">
+        <div class="step active" data-step="1" role="button" tabindex="0">
+          <small>Step 1</small>
+          <h3>검사 소개</h3>
+        </div>
+        <div class="step" data-step="2" role="button" tabindex="0">
+          <small>Step 2</small>
+          <h3>검사(문진)</h3>
+        </div>
+        <div class="step" data-step="3" role="button" tabindex="0">
+          <small>Step 3</small>
+          <h3>결과 · 증상 안내</h3>
+        </div>
+      </section>
+
+      <div class="progress">
+        <div id="progress-bar"></div>
+      </div>
+
+      <section class="card page active" id="step-1" data-step="1">
+        <h2>검사 소개</h2>
+        <p class="pill">VitaCheck CVD Risk MVP</p>
+        <p>
+          필수 건강지표와 생활습관을 입력하면 심혈관 위험 수준과 개선 포인트를 안내합니다.
+          입력값은 로컬 브라우저에서만 계산되며 저장되지 않습니다.
+        </p>
+        <div class="grid">
+          <div>
+            <strong>주요 결과</strong>
+            <ul class="list">
+              <li>건강군 / 저위험군 / 중등도위험군 / 고위험군</li>
+              <li>Risk Score</li>
+              <li>항목별 위험 상태</li>
+            </ul>
+          </div>
+          <div>
+            <strong>주의</strong>
+            <ul class="list">
+              <li>의학적 진단이 아닌 웰니스 참고용입니다.</li>
+              <li>수치가 높거나 증상이 있으면 전문가 상담을 권장합니다.</li>
+              <li>모르는 항목은 공란으로 두어도 됩니다.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="ghost" disabled>처음으로</button>
+          </div>
+          <div class="right">
+            <button type="button" id="next-from-1">다음</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card page" id="step-2" data-step="2">
+        <h2>검사(문진)</h2>
+        <p>필수 항목과 선택 항목을 입력해 주세요. 일부 공란이어도 결과가 도출됩니다.</p>
+
+        <form id="cvd-form">
+          <div class="grid">
+            <div>
+              <label>성별</label>
+              <div class="radio-group">
+                <label class="radio-row"><input type="radio" name="gender" value="M" checked /> 남</label>
+                <label class="radio-row"><input type="radio" name="gender" value="F" /> 여</label>
+              </div>
+            </div>
+            <div>
+              <label>연령</label>
+              <input type="number" name="age" min="18" max="100" placeholder="예: 45" />
+            </div>
+            <div>
+              <label>키 (cm)</label>
+              <input type="number" name="height" min="120" max="220" placeholder="예: 170" />
+            </div>
+            <div>
+              <label>체중 (kg)</label>
+              <input type="number" name="weight" min="35" max="200" placeholder="예: 72" />
+            </div>
+            <div>
+              <label>허리둘레 (cm)</label>
+              <input type="number" name="waist" min="50" max="150" placeholder="예: 88" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>혈압 (mmHg)</label>
+              <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <input type="number" name="sbp" min="70" max="250" placeholder="수축기" />
+                <input type="number" name="dbp" min="40" max="150" placeholder="이완기" />
+              </div>
+              <div class="hint">가장 최근 측정치를 입력하세요.</div>
+            </div>
+            <div>
+              <label>공복혈당 (mg/dL)</label>
+              <input type="number" name="glucose" min="50" max="400" placeholder="예: 98" />
+            </div>
+            <div>
+              <label>총콜레스테롤 (mg/dL)</label>
+              <input type="number" name="totalCholesterol" min="80" max="400" placeholder="예: 190" />
+            </div>
+            <div>
+              <label>LDL 콜레스테롤 (mg/dL)</label>
+              <input type="number" name="ldl" min="40" max="300" placeholder="예: 115" />
+              <div class="hint">모르면 공란으로 두세요.</div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="grid">
+            <div>
+              <label>흡연</label>
+              <select name="smoking">
+                <option value="">선택 안 함</option>
+                <option value="none">비흡연</option>
+                <option value="past">과거 흡연</option>
+                <option value="current">현재 흡연</option>
+              </select>
+            </div>
+            <div>
+              <label>음주</label>
+              <select name="drinking">
+                <option value="">선택 안 함</option>
+                <option value="none">음주 안 함</option>
+                <option value="moderate">보통</option>
+                <option value="heavy">과음</option>
+              </select>
+            </div>
+            <div>
+              <label>운동</label>
+              <select name="exercise">
+                <option value="">선택 안 함</option>
+                <option value="high">규칙적</option>
+                <option value="medium">보통</option>
+                <option value="low">부족</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="page-nav">
+            <div class="left">
+              <button type="button" class="secondary" id="prev-from-2">이전</button>
+              <button type="button" class="ghost" id="to-first-from-2">처음으로</button>
+            </div>
+            <div class="right">
+              <button type="button" id="next-from-2">다음</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="card page" id="step-3" data-step="3">
+        <h2>결과 · 증상 안내</h2>
+        <div class="result-banner">
+          <div>
+            <div class="pill">웰니스 위험 요약</div>
+            <h3 id="risk-level" style="margin: 8px 0 0;">-</h3>
+          </div>
+          <div id="risk-tag" class="level-tag level-low">-</div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric">
+            <strong>Risk Score</strong>
+            <span id="risk-score" class="badge">-</span>
+          </div>
+          <div class="metric">
+            <strong>BMI</strong>
+            <span id="bmi-value" class="badge">-</span>
+            <p class="hint" id="bmi-note">키/체중 입력 시 계산됩니다.</p>
+          </div>
+          <div class="metric">
+            <strong>혈압 상태</strong>
+            <span id="bp-note" class="badge">-</span>
+          </div>
+          <div class="metric">
+            <strong>항목별 위험 상태</strong>
+            <span id="factor-count" class="badge">-</span>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <div>
+            <strong>요약</strong>
+            <p id="summary-text">문진 결과가 표시됩니다.</p>
+          </div>
+          <div>
+            <strong>주의 항목</strong>
+            <ul class="list" id="factor-list">
+              <li>입력값 기반으로 표시됩니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <div>
+            <strong>개선 제안</strong>
+            <ul class="list" id="wellness-list"></ul>
+          </div>
+          <div>
+            <strong>생활습관 팁</strong>
+            <ul class="list" id="lifestyle-list"></ul>
+          </div>
+          <div>
+            <strong>의료 상담 권고</strong>
+            <ul class="list" id="medical-list"></ul>
+          </div>
+        </div>
+
+        <p class="hint" style="margin-top: 16px;">
+          이 결과는 웰니스 참고용으로, 이상 소견이 있으면 의료진 상담을 권장합니다.
+        </p>
+
+        <div class="page-nav">
+          <div class="left">
+            <button type="button" class="secondary" id="prev-from-3">이전</button>
+          </div>
+          <div class="right">
+            <button type="button" class="ghost" id="to-first-from-3">처음으로</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("cvd-form");
+      const stepper = document.getElementById("stepper");
+      const progressBar = document.getElementById("progress-bar");
+      const pages = Array.from(document.querySelectorAll(".page"));
+
+      const riskLevelEl = document.getElementById("risk-level");
+      const riskTagEl = document.getElementById("risk-tag");
+      const riskScoreEl = document.getElementById("risk-score");
+      const bmiEl = document.getElementById("bmi-value");
+      const bmiNoteEl = document.getElementById("bmi-note");
+      const bpNoteEl = document.getElementById("bp-note");
+      const factorCountEl = document.getElementById("factor-count");
+      const summaryEl = document.getElementById("summary-text");
+      const factorListEl = document.getElementById("factor-list");
+      const wellnessListEl = document.getElementById("wellness-list");
+      const lifestyleListEl = document.getElementById("lifestyle-list");
+      const medicalListEl = document.getElementById("medical-list");
+
+      function setStep(step) {
+        pages.forEach((page) => page.classList.toggle("active", Number(page.dataset.step) === step));
+        document.querySelectorAll(".step").forEach((item) => {
+          item.classList.toggle("active", Number(item.dataset.step) === step);
+        });
+        progressBar.style.width = `${step * 33.3}%`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function getNumber(name) {
+        const value = form.elements[name]?.value;
+        if (!value) return null;
+        const num = Number(value);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function getValue(name) {
+        return form.elements[name]?.value || "";
+      }
+
+      function buildList(target, items) {
+        target.innerHTML = "";
+        if (!items.length) {
+          const li = document.createElement("li");
+          li.textContent = "특이 사항이 없습니다.";
+          target.appendChild(li);
+          return;
+        }
+        items.forEach((text) => {
+          const li = document.createElement("li");
+          li.textContent = text;
+          target.appendChild(li);
+        });
+      }
+
+      function calcBMI(height, weight) {
+        if (!height || !weight) return null;
+        const meters = height / 100;
+        return weight / (meters * meters);
+      }
+
+      function scoreBP(sbp, dbp) {
+        if (sbp == null || dbp == null) return { score: 0, label: "미입력" };
+        if (sbp >= 160 || dbp >= 100) return { score: 3, label: "고위험" };
+        if (sbp >= 140 || dbp >= 90) return { score: 2, label: "위험" };
+        if (sbp < 120 && dbp < 80) return { score: 0, label: "정상" };
+        return { score: 1, label: "주의" };
+      }
+
+      function scoreGlucose(glucose) {
+        if (glucose == null) return 0;
+        if (glucose < 100) return 0;
+        if (glucose < 126) return 1;
+        if (glucose >= 180) return 3;
+        return 2;
+      }
+
+      function scoreLDL(ldl) {
+        if (ldl == null) return 0;
+        if (ldl < 100) return 0;
+        if (ldl < 130) return 1;
+        if (ldl < 160) return 2;
+        return 3;
+      }
+
+      function scoreBMI(bmi) {
+        if (bmi == null) return 0;
+        if (bmi < 18.5) return 1;
+        if (bmi < 23) return 0;
+        if (bmi < 25) return 1;
+        if (bmi < 30) return 2;
+        return 3;
+      }
+
+      function scoreWaist(gender, waist) {
+        if (waist == null) return 0;
+        if (gender === "M" && waist >= 90) return 2;
+        if (gender === "F" && waist >= 85) return 2;
+        return 0;
+      }
+
+      function scoreLifestyle(smoking, drinking, exercise) {
+        let score = 0;
+        if (smoking === "past") score += 1;
+        if (smoking === "current") score += 2;
+        if (drinking === "moderate") score += 1;
+        if (drinking === "heavy") score += 2;
+        if (exercise === "medium") score += 1;
+        if (exercise === "low") score += 2;
+        return score;
+      }
+
+      function classifyRisk(totalScore, overrides) {
+        if (overrides.high) return "고위험군";
+        if (totalScore <= 3) return "건강군";
+        if (totalScore <= 6) return "저위험군";
+        if (totalScore <= 10) return "중등도위험군";
+        return "고위험군";
+      }
+
+      function setLevelTag(level) {
+        riskTagEl.className = "level-tag";
+        if (level === "고위험군") riskTagEl.classList.add("level-high");
+        else if (level === "중등도위험군") riskTagEl.classList.add("level-mid");
+        else riskTagEl.classList.add("level-low");
+        riskTagEl.textContent = level;
+      }
+
+      function runAnalysis() {
+        const age = getNumber("age");
+        const gender = getValue("gender") || "M";
+        const height = getNumber("height");
+        const weight = getNumber("weight");
+        const waist = getNumber("waist");
+        const sbp = getNumber("sbp");
+        const dbp = getNumber("dbp");
+        const glucose = getNumber("glucose");
+        const ldl = getNumber("ldl");
+
+        const smoking = getValue("smoking");
+        const drinking = getValue("drinking");
+        const exercise = getValue("exercise");
+
+        const bmi = calcBMI(height, weight);
+        const bpScore = scoreBP(sbp, dbp);
+        const glucoseScore = scoreGlucose(glucose);
+        const ldlScore = scoreLDL(ldl);
+        const bmiScore = scoreBMI(bmi);
+        const waistScore = scoreWaist(gender, waist);
+        const lifestyleScore = scoreLifestyle(smoking, drinking, exercise);
+
+        const hasBP = sbp != null && dbp != null;
+        const hasGlucose = glucose != null;
+        const hasLDL = ldl != null;
+        const hasBMI = bmi != null;
+        const hasWaist = waist != null;
+        const hasSmoking = smoking !== "";
+        const hasDrinking = drinking !== "";
+        const hasExercise = exercise !== "";
+
+        const totalScore =
+          bpScore.score * 2 +
+          glucoseScore * 2 +
+          ldlScore * 2 +
+          bmiScore * 1 +
+          waistScore * 1 +
+          lifestyleScore * 1;
+
+        const riskFactorCount = [
+          hasBP && bpScore.score >= 1,
+          hasGlucose && glucoseScore >= 1,
+          hasLDL && ldlScore >= 1,
+          hasBMI && bmiScore >= 1,
+          hasWaist && waistScore >= 1,
+          hasSmoking && (smoking === "past" || smoking === "current"),
+          hasDrinking && (drinking === "moderate" || drinking === "heavy"),
+          hasExercise && (exercise === "medium" || exercise === "low"),
+        ].filter(Boolean).length;
+
+        const overrides = {
+          high:
+            (sbp != null && dbp != null && (sbp >= 160 || dbp >= 100)) ||
+            (glucose != null && glucose >= 126 && bmi != null && bmi >= 25) ||
+            (ldl != null && ldl >= 160),
+          moderate: riskFactorCount >= 3,
+        };
+
+        const riskLevel = overrides.high
+          ? "고위험군"
+          : overrides.moderate && totalScore <= 6
+            ? "중등도위험군"
+            : classifyRisk(totalScore, overrides);
+
+        riskLevelEl.textContent = riskLevel;
+        setLevelTag(riskLevel);
+        riskScoreEl.textContent = `${totalScore}점`;
+
+        bmiEl.textContent = bmi != null ? `${bmi.toFixed(1)}` : "-";
+        bmiNoteEl.textContent = bmi != null ? (bmi >= 25 ? "체중 관리 필요" : "정상 범위") : "키/체중 입력 시 계산됩니다.";
+        bpNoteEl.textContent = bpScore.label;
+
+        const factorList = [];
+        const levelLabel = (score) => (score === 1 ? "주의" : score === 2 ? "위험" : "고위험");
+
+        if (hasBP && bpScore.score >= 1) factorList.push(`혈압: ${levelLabel(bpScore.score)}`);
+        if (hasGlucose && glucoseScore >= 1) factorList.push(`공복혈당: ${levelLabel(glucoseScore)}`);
+        if (hasLDL && ldlScore >= 1) factorList.push(`LDL: ${levelLabel(ldlScore)}`);
+        if (hasBMI && bmiScore >= 1) factorList.push(`BMI: ${levelLabel(bmiScore)}`);
+        if (hasWaist && waistScore >= 1) factorList.push("허리둘레: 위험");
+        if (hasSmoking && smoking !== "none") factorList.push("흡연: 주의");
+        if (hasDrinking && drinking !== "none") factorList.push("음주: 주의");
+        if (hasExercise && exercise !== "high") factorList.push("운동: 주의");
+        if (!factorList.length) factorList.push("특이 위험 요인 없음");
+
+        factorCountEl.textContent = `${riskFactorCount}개`;
+
+        summaryEl.textContent =
+          riskLevel === "고위험군"
+            ? "위험 신호가 뚜렷합니다. 전문적인 상담과 생활습관 개선이 필요합니다."
+            : riskLevel === "중등도위험군"
+              ? "주의가 필요한 수준입니다. 위험 요인을 줄이는 계획을 추천합니다."
+              : riskLevel === "저위험군"
+                ? "큰 이상은 없으나 예방 중심 관리가 필요합니다."
+                : "건강군입니다. 현재 습관을 유지하며 주기적 점검을 권장합니다.";
+
+        buildList(factorListEl, factorList);
+
+        const wellness = [
+          "혈압·혈당·콜레스테롤을 정기적으로 측정",
+          "식사에서 염분·포화지방 섭취 줄이기",
+          "체중과 허리둘레를 꾸준히 관리",
+          "스트레스와 수면 패턴 개선",
+        ];
+
+        const lifestyle = [
+          "주 3회 이상 유산소 운동(30분 이상)",
+          "음주는 주 1~2회 이내로 조절",
+          "흡연 중이면 감량/중단 목표 설정",
+          "가공식품·당분 섭취 줄이기",
+        ];
+
+        const medical = [];
+        if (riskLevel === "고위험군") {
+          medical.push("가까운 시일 내 건강검진/상담 권장");
+          medical.push("혈압·혈당·지질 수치 재확인 권장");
+        } else if (riskLevel === "중등도위험군") {
+          medical.push("정기 검진 주기 단축 고려");
+        } else {
+          medical.push("정기 검진으로 수치 추적 관리");
+        }
+
+        buildList(wellnessListEl, wellness);
+        buildList(lifestyleListEl, lifestyle);
+        buildList(medicalListEl, medical);
+      }
+
+      document.getElementById("next-from-1").addEventListener("click", () => setStep(2));
+      document.getElementById("prev-from-2").addEventListener("click", () => setStep(1));
+      document.getElementById("to-first-from-2").addEventListener("click", () => setStep(1));
+      document.getElementById("next-from-2").addEventListener("click", () => {
+        runAnalysis();
+        setStep(3);
+      });
+      document.getElementById("prev-from-3").addEventListener("click", () => setStep(2));
+      document.getElementById("to-first-from-3").addEventListener("click", () => setStep(1));
+
+      stepper.addEventListener("click", (event) => {
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        const step = Number(stepEl.dataset.step);
+        if (step === 3) runAnalysis();
+        setStep(step);
+      });
+
+      stepper.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const stepEl = event.target.closest(".step");
+        if (!stepEl) return;
+        event.preventDefault();
+        const step = Number(stepEl.dataset.step);
+        if (step === 3) runAnalysis();
+        setStep(step);
+      });
+
+      setStep(1);
+    </script>
+  </body>
+</html>
